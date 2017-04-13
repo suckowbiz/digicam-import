@@ -28,7 +28,7 @@ move_into() {
 
 # Triggered from gphoto2 to move the downloaded file appropriately.
 if [[ ! "${ACTION}" = "" ]]; then
-    if [[ "${ACTION:=''}" = "download" ]]; then
+    if [[ "${ACTION}" = "download" ]]; then
         readonly MTIME=$(stat --format="%Y" "${ARGUMENT}")
         # shellcheck disable=2086
         readonly EPOCH=$(date -d @${MTIME} +%Y/%m)
