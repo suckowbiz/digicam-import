@@ -4,4 +4,4 @@ Import files from connected digicam that supports Picture Transport Protocol (PT
 
 ## Usage
 
-Run `./dicicam-import.sh`.
+Run `./digicam-import.sh`.
