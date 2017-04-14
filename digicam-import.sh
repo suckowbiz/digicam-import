@@ -11,7 +11,8 @@ if [[ "${GPHOTO2_PATH}" = "" ]]; then
 fi  
 
 #######################################
-# Move downloaded files to sort them.
+# Moves given file to given director. 
+# Creates directory if absent.
 # Globals:
 #   None
 # Arguments:
@@ -22,23 +23,26 @@ fi
 #######################################
 move_into() {
     mkdir --parent "$2"
-    echo "Saving $2/$1 ..."
+    echo "Moving $1 into $2/$1 ..."
     mv "$1" "$2"
 }
 
 # Triggered from gphoto2 to move the downloaded file appropriately.
-if [[ ! "${ACTION}" = "" ]]; then
-    if [[ "${ACTION:=''}" = "download" ]]; then
+if [[ ! -z "${ACTION// }" ]]; then
+    if [[ "${ACTION}" = "download" ]]; then
+        echo "Fetched ${ARGUMENT}."
         readonly MTIME=$(stat --format="%Y" "${ARGUMENT}")
         # shellcheck disable=2086
         readonly EPOCH=$(date -d @${MTIME} +%Y/%m)
         readonly SUFFIX="${ARGUMENT##*.}"
-        if [[ $SUFFIX = "JPG" ]]; then
-            move_into "${ARGUMENT}" "$EPOCH" 
+        readonly SUFFIX_LOWERED="${SUFFIX,,}"
+        if [[ "${SUFFIX_LOWERED}" = "jpg" ]] || [[ "${SUFFIX_LOWERED}" = "jpeg" ]]; then
+            move_into "${ARGUMENT}" "${EPOCH}" 
         else
-            move_into "${ARGUMENT}" "$EPOCH/$SUFFIX"
+            move_into "${ARGUMENT}" "${EPOCH}/${SUFFIX}"
         fi
     fi
+    # Return on any other ACTION to avoid having gphoto falls through.
     exit 0
 fi
 
