@@ -28,18 +28,20 @@ move_into() {
 }
 
 # Triggered from gphoto2 to move the downloaded file appropriately.
+# ACTION=download
+#        gphoto2 has just downloaded a file to the computer, storing it in the file indicated by the environment variable ARGUMENT.
 if [[ ! -z "${ACTION// }" ]]; then
     if [[ "${ACTION}" = "download" ]]; then
         echo "Fetched ${ARGUMENT}."
         readonly MTIME=$(stat --format="%Y" "${ARGUMENT}")
         # shellcheck disable=2086
         readonly EPOCH=$(date -d @${MTIME} +%Y/%m)
-        readonly SUFFIX="${ARGUMENT##*.}"
-        readonly SUFFIX_LOWERED="${SUFFIX,,}"
-        if [[ "${SUFFIX_LOWERED}" = "jpg" ]] || [[ "${SUFFIX_LOWERED}" = "jpeg" ]]; then
+        readonly EXT="${ARGUMENT##*.}"
+        readonly EXT_LOWERED="${EXT,,}"
+        if [[ "${EXT_LOWERED}" = "jpg" ]] || [[ "${EXT_LOWERED}" = "jpeg" ]] || [[ "${EXT_LOWERED}" = "mov" ]]; then
             move_into "${ARGUMENT}" "${EPOCH}" 
         else
-            move_into "${ARGUMENT}" "${EPOCH}/${SUFFIX}"
+            move_into "${ARGUMENT}" "${EPOCH}/${EXT}"
         fi
     fi
     # Return on any other ACTION to avoid having gphoto falls through.
@@ -61,7 +63,11 @@ fi
 while getopts p: opt
 do
   case $opt in
-    p)  ${GPHOTO2_PATH} --quiet --port="${OPTARG}" --folder=/ --recurse --get-all-files --hook-script="$0"
+    p)  readonly TARGET_DIRS=("/DCIM" "/store_00010001/DCIM/Camera")
+        for dir in "${TARGET_DIRS[@]}"; do
+            echo "Trial to download from: '${dir}' ..."
+            ${GPHOTO2_PATH} --quiet --port="${OPTARG}" --folder="${dir}" --get-all-files --hook-script="$0" || true
+        done
         ;; 
     \?) 
         exit 1
