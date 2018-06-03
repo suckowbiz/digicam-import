@@ -63,10 +63,10 @@ fi
 while getopts p: opt
 do
   case $opt in
-    p)  readonly TARGET_DIRS=("/DCIM" "/store_00010001/DCIM/Camera")
-        for dir in "${TARGET_DIRS[@]}"; do
-            echo "Trial to download from: '${dir}' ..."
-            ${GPHOTO2_PATH} --quiet --port="${OPTARG}" --folder="${dir}" --get-all-files --hook-script="$0" || true
+    p)  readonly FOLDERS=$(gphoto2 --debug --debug-logfile=my-logfile.txt --quiet --port=usb:002,008 --list-folders |grep -i "dcim$")
+        for folder in $FOLDERS; do
+            echo "Trial to download from: '${folder}' ..."
+            ${GPHOTO2_PATH} --quiet --port="${OPTARG}" --folder="${folder}" --get-all-files --hook-script="$0" || true
         done
         ;; 
     \?) 
