@@ -3,7 +3,7 @@
 # Intentionally created to import photos from my digicam.
 set -e
 
-# Verify gphoto2 is available since this script relies on it.
+# This script utilizes gphoto2. Thus it is required to have gphoto2 installed.
 readonly GPHOTO2_PATH=$(which gphoto2 2>/dev/null)
 if [[ "${GPHOTO2_PATH}" = "" ]]; then
     echo "This script requires gphoto2 to be in PATH!"
