@@ -60,17 +60,19 @@ if [[ $# -eq 0 ]]; then
 fi
 
 # Process command line arguments to provide extended functionality.
-while getopts p: opt
-do
-  case $opt in
-    p)  readonly FOLDERS=$(gphoto2 --debug --debug-logfile=my-logfile.txt --quiet --port=usb:002,008 --list-folders |grep -i "dcim$")
-        for folder in $FOLDERS; do
-            echo "Trial to download from: '${folder}' ..."
-            ${GPHOTO2_PATH} --quiet --port="${OPTARG}" --folder="${folder}" --get-all-files --hook-script="$0" || true
-        done
-        ;; 
-    \?) 
-        exit 1
-        ;;
+while getopts p: opt; do
+  case ${opt} in
+    p)
+      echo "Listing folders to download files (this can take several minutes) ... "
+      readonly FOLDERS=$(${GPHOTO2_PATH} --parsable --port=${OPTARG} --list-folders |grep -i "dcim$")
+      for folder in $FOLDERS; do
+        echo "Getting files from: '${folder}' ..."
+        ${GPHOTO2_PATH} --quiet --port="${OPTARG}" --folder="${folder}" --get-all-files --hook-script="$0" || true
+      done
+      ;;
+    \?)
+      echo "Invalid option: -${OPTARG}. Exiting..."
+      exit 1
+      ;;
   esac
 done
